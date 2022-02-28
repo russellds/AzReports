@@ -1,5 +1,6 @@
 /output/
 /[0-9]*/
+/temp/
 
 /.vs/
 RequiredModules/
