@@ -27,6 +27,11 @@ jobs:
     environment:
       name: preview
     steps:
+      - name: Install ImportExcel
+        shell: pwsh
+        run: |
+          Install-Module -Name ImportExcel -AllowClobber -Force
+
       - uses: russellds/pwsh-module-publish@v0
         with:
           moduleName: ${{ env.MODULE_NAME }}
