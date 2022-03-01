@@ -16,10 +16,10 @@ jobs:
     runs-on: windows-latest
     needs: build
     steps:
-      - name: Install ImportExcel
-        shell: pwsh
-        run: |
-          Install-Module -Name ImportExcel -AllowClobber -Force
+      # - name: Install ImportExcel
+      #   shell: pwsh
+      #   run: |
+      #     Install-Module -Name ImportExcel -AllowClobber -Force
 
       - uses: russellds/pwsh-module-test@v0
         with:
