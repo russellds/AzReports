@@ -20,6 +20,11 @@ jobs:
         with:
           moduleName: ${{ env.MODULE_NAME }}
 
+      - name: Outputs Variables
+        shell: pwsh
+        run: |
+          Write-Host "PreReleaseTag: ${{ needs.build.outputs.preReleaseTag }}"
+
   publishPreview:
     if: contains(needs.build.outputs.preReleaseTag, 'preview')
     runs-on: windows-latest
