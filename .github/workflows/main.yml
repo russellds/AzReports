@@ -34,7 +34,7 @@ jobs:
           testGallery: 'True'
 
   publishProd:
-    if: needs.build.outputs.preReleaseTag == null
+    if: needs.build.outputs.preReleaseTag == ''
     runs-on: windows-latest
     needs: [build, test]
     environment:
