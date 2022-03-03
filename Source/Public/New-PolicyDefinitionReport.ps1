@@ -57,8 +57,7 @@ function New-PolicyDefinitionReport {
         [switch]
         $Force
     )
-
-    $PSBoundParameters.Keys
+    $InformationPreference = 'Continue'
 
     if ($Path.Extension -ne '.xlsx') {
         throw 'File extension must be .xlsx!'
@@ -87,23 +86,23 @@ function New-PolicyDefinitionReport {
     $objects = @()
 
     foreach ($policyDefinition in $policyDefinitions) {
-        Write-Verbose "Policy Name: $($policyDefinition.Properties.DisplayName)" -Verbose
+        Write-Information "Policy Name: $($policyDefinition.Properties.DisplayName)"
 
         $item = [ordered]@{
-            Name = $policyDefinition.Name
-            Category = $policyDefinition.Properties.Metadata.category
-            Type = $policyDefinition.Properties.PolicyType
-            'Display Name' = $policyDefinition.Properties.DisplayName
-            Description = $policyDefinition.Properties.Description
-            'Resource Id' = $policyDefinition.ResourceId
-            'Available Effects' = $policyDefinition.Properties.PolicyRule.then.effect
-            'Parameter Name' = $null
-            'Parameter Type' = $null
+            Name                     = $policyDefinition.Name
+            Category                 = $policyDefinition.Properties.Metadata.category
+            Type                     = $policyDefinition.Properties.PolicyType
+            'Display Name'           = $policyDefinition.Properties.DisplayName
+            Description              = $policyDefinition.Properties.Description
+            'Resource Id'            = $policyDefinition.ResourceId
+            'Available Effects'      = $policyDefinition.Properties.PolicyRule.then.effect
+            'Parameter Name'         = $null
+            'Parameter Type'         = $null
             'Parameter Display Name' = $null
-            'Parameter Description' = $null
-            'Allowed Values' = $null
-            'Default Value' = $null
-            'Desired Value' = $null
+            'Parameter Description'  = $null
+            'Allowed Values'         = $null
+            'Default Value'          = $null
+            'Desired Value'          = $null
         }
 
         if ($policyDefinition.Properties.Parameters) {
@@ -112,7 +111,7 @@ function New-PolicyDefinitionReport {
                 Select-Object -ExpandProperty Name
 
             foreach ($parameter in $parameters) {
-                Write-Verbose "Parameter Name: $parameter" -Verbose
+                Write-Information "Parameter Name: $parameter"
                 $item.'Parameter Name' = $parameter
                 $item.'Parameter Type' = $policyDefinition.Properties.Parameters.$parameter.type
                 $item.'Parameter Display Name' = $policyDefinition.Properties.Parameters.$parameter.metadata.displayName
@@ -137,13 +136,13 @@ function New-PolicyDefinitionReport {
     $excelStyle = New-ExcelStyle -VerticalAlignment Top
 
     $excelSplat = @{
-        Path = $Path
+        Path          = $Path
         WorksheetName = 'Policies'
-        TableStyle = 'Medium2'
-        AutoSize = $true
-        FreezeTopRow = $true
-        Style = $excelStyle
-        PassThru = $true
+        TableStyle    = 'Medium2'
+        AutoSize      = $true
+        FreezeTopRow  = $true
+        Style         = $excelStyle
+        PassThru      = $true
     }
 
     $excel = $objects |
