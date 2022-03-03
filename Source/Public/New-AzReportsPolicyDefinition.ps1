@@ -61,21 +61,7 @@ function New-AzReportsPolicyDefinition {
 
     CheckAzContext
 
-    if ($Path.Extension -ne '.xlsx') {
-        throw 'File extension must be .xlsx!'
-    }
-
-    if (Test-Path -Path $Path.DirectoryName) {
-        if (Test-Path -Path $Path.FullName) {
-            if ($Force) {
-                [void](Remove-Item -Path $Path.FullName -Force)
-            } else {
-                throw "$( $Path.FullName ) already exists, pass -Force to overwrite!"
-            }
-        }
-    } else {
-        [void](New-Item -Path $Path.DirectoryName -ItemType Directory -Force)
-    }
+    CheckPath -Path $Path -Extension '.xlsx' -Force:$Force
 
     if ($PSBoundParameters.Keys -contains 'BuiltIn') {
         $policyDefinitions = Get-AzPolicyDefinition -Builtin
