@@ -30,9 +30,6 @@ function New-PolicyDefinitionReport {
         [switch]
         $Force
     )
-
-    $PSBoundParameters.Keys
-
     if ($Path.Extension -ne '.xlsx') {
         throw 'File extension must be .xlsx!'
     }
