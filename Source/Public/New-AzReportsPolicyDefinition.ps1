@@ -1,21 +1,21 @@
 #requires -Modules ImportExcel
 
-function New-PolicyDefinitionReport {
+function New-AzReportsPolicyDefinition {
     <#
     .SYNOPSIS
         Creates an Excel spreadsheet report with the details for Azure Policy Definitions.
     .DESCRIPTION
         Creates an Excel spreadsheet report with the details for Azure Policy Definitions.
     .EXAMPLE
-        PS C:\> New-PolicyDefinitionReport -Path .\BuiltInPolicies -BuiltIn -Force
+        PS C:\>  New-AzReportsPolicyDefinition -Path .\BuiltInPolicies -BuiltIn -Force
 
         Creates a report of the BuiltIn Azure Policy Definitions and if the Path already exists it overwrites it.
     .EXAMPLE
-        PS C:\> New-PolicyDefinitionReport -Path .\CustomPolicies -Custom -Force
+        PS C:\>  New-AzReportsPolicyDefinition -Path .\CustomPolicies -Custom -Force
 
         Creates a report of the custom Azure Policy Definitions and if the Path already exists it overwrites it.
     .EXAMPLE
-        PS C:\> New-PolicyDefinitionReport -Path .\CustomPolicies
+        PS C:\>  New-AzReportsPolicyDefinition -Path .\CustomPolicies
 
         Creates a report of all Azure Policy Definitions.
     .INPUTS
@@ -58,6 +58,8 @@ function New-PolicyDefinitionReport {
         $Force
     )
     $InformationPreference = 'Continue'
+
+    CheckAzContext
 
     if ($Path.Extension -ne '.xlsx') {
         throw 'File extension must be .xlsx!'
