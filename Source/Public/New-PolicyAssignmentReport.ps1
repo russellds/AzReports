@@ -50,16 +50,17 @@ function New-PolicyAssignmentReport {
 
         foreach ($parameter in $parameters) {
             Write-Information "Policy: $($policyDefinition.Properties.DisplayName) Parameter: $parameter"
+
             if ($policySetPolicyDefinition.parameters.$parameter.value.GetType().Name -eq 'String') {
                 if ($policySetPolicyDefinition.parameters.$parameter.value.StartsWith('[parameters')) {
                     $item = [PSCustomObject]@{
-                        Name = $policyDefinition.Properties.DisplayName
-                        Category = $policyDefinition.Properties.Metadata.category
+                        Name             = $policyDefinition.Properties.DisplayName
+                        Category         = $policyDefinition.Properties.Metadata.category
                         'Parameter Name' = $($policySetPolicyDefinition.parameters.$parameter.value.Split("'"))[1]
                         'Parameter Type' = $policyDefinition.Properties.Parameters.$parameter.type
                         'Allowed Values' = $policyDefinition.Properties.Parameters.$parameter.allowedValues -join ', '
-                        'Default Value' = $null
-                        'Desired Value' = $null
+                        'Default Value'  = $null
+                        'Desired Value'  = $null
                     }
 
                     if ($policyDefinition.Properties.Parameters.$parameter.type -eq 'Object') {
@@ -76,13 +77,13 @@ function New-PolicyAssignmentReport {
     }
 
     $excelSplat = @{
-        Path = $Path
+        Path          = $Path
         WorksheetName = $Name
-        TableStyle = 'Medium2'
-        AutoSize = $true
-        FreezeTopRow = $true
-        Style = $excelStyle
-        PassThru = $true
+        TableStyle    = 'Medium2'
+        AutoSize      = $true
+        FreezeTopRow  = $true
+        Style         = $excelStyle
+        PassThru      = $true
     }
 
     $excel = $objects |
