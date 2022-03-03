@@ -1,8 +1,23 @@
 #requires -Modules ImportExcel
 
 function New-PolicyAssignmentReport {
+    <#
+    .SYNOPSIS
+        Creates an Excel spreadsheet report with the details for Azure Policy Assignment
+    .DESCRIPTION
+        Creates an Excel spreadsheet report with the details for Azure Policy Assignment
+    .EXAMPLE
+        PS C:\> New-PolicyAssignmentReport -Path .\temp\SecurityCenterBuiltIn.xlsx -Name SecurityCenterBuiltIn -Force
+
+        Creates a report of the Azure Policy Assignment and if the Path already exists it overwrites it.
+    .INPUTS
+        None
+    .OUTPUTS
+        Excel Spreadsheet
+    #>
     [CmdletBinding()]
     param(
+        # Path to create the Excel report. Must end with '.xlsx'.
         [Parameter(Mandatory)]
         [System.IO.FileInfo]
         $Path,
@@ -11,9 +26,11 @@ function New-PolicyAssignmentReport {
         [string]
         $Name,
 
+        # Do not automatically open the generated Excel spreadsheet.
         [switch]
         $NoInvoke,
 
+        # Overwrite existing Excel spreadsheet.
         [switch]
         $Force
     )
