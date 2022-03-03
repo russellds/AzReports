@@ -1,8 +1,31 @@
 #requires -Modules ImportExcel
 
 function New-PolicyDefinitionReport {
+    <#
+    .SYNOPSIS
+        Creates an Excel spreadsheet report with the details for Azure Policy Definitions.
+    .DESCRIPTION
+        Creates an Excel spreadsheet report with the details for Azure Policy Definitions.
+    .EXAMPLE
+        PS C:\> New-PolicyDefinitionReport -Path .\BuiltInPolicies -BuiltIn -Force
+
+        Creates a report of the BuiltIn Azure Policy Definitions and if the Path already exists it overwrites it.
+    .EXAMPLE
+        PS C:\> New-PolicyDefinitionReport -Path .\CustomPolicies -Custom -Force
+
+        Creates a report of the custom Azure Policy Definitions and if the Path already exists it overwrites it.
+    .EXAMPLE
+        PS C:\> New-PolicyDefinitionReport -Path .\CustomPolicies
+
+        Creates a report of all Azure Policy Definitions.
+    .INPUTS
+        None
+    .OUTPUTS
+        Excel Spreadsheet
+    #>
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param(
+        # Path to create the Excel report. Must end with '.xlsx'.
         [Parameter(Mandatory)]
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'BuiltIn')]
@@ -10,20 +33,24 @@ function New-PolicyDefinitionReport {
         [System.IO.FileInfo]
         $Path,
 
+        # Only output BuiltIn Azure Policy Definitions.
         [Parameter(ParameterSetName = 'BuiltIn')]
         [switch]
         $BuiltIn,
 
+        #Only output Custom Azure Policy Definitions.
         [Parameter(ParameterSetName = 'Custom')]
         [switch]
         $Custom,
 
+        # Do not automatically open the generated Excel spreadsheet.
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'BuiltIn')]
         [Parameter(ParameterSetName = 'Custom')]
         [switch]
         $NoInvoke,
 
+        # Overwrite existing Excel spreadsheet.
         [Parameter(ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'BuiltIn')]
         [Parameter(ParameterSetName = 'Custom')]

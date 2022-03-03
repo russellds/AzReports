@@ -33,7 +33,7 @@
                 "-Path",
                 {
                     "quoting": "weak",
-                    "value": "(Get-ChildItem -Path ./output/KeepAlive -Directory | Sort-Object -Property Name -Descending | Select-Object -First 1 -ExpandProperty FullName)"
+                    "value": "(Get-ChildItem -Path ./output/AzReports -Directory | Sort-Object -Property Name -Descending | Select-Object -First 1 -ExpandProperty FullName)"
                 },
                 "-Profile",
                 "./PSScriptAnalyzerSettings.psd1"
@@ -64,7 +64,7 @@
                 "-PesterOption",
                 "@{ IncludeVSCodeMarker = $True }",
                 "-CodeCoverage",
-                "(Convert-Path (Join-Path (Split-Path (Get-Module KeepAlive -List | Sort Version -Desc | Select -First 1 -Expand ModuleBase)) *.psm1))"
+                "(Convert-Path (Join-Path (Split-Path (Get-Module AzReports -List | Sort Version -Desc | Select -First 1 -Expand ModuleBase)) *.psm1))"
             ],
             "presentation": {
                 "echo": true,

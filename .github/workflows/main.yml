@@ -10,7 +10,7 @@ jobs:
       id: pwshModuleBuild
 
     outputs:
-      preReleaseTag: ${{ steps.pwshModuleBuild.outputs.preReleaseTag }}
+      preReleaseLabel: ${{ steps.pwshModuleBuild.outputs.preReleaseLabel }}
 
   test:
     runs-on: windows-latest
@@ -20,8 +20,13 @@ jobs:
         with:
           moduleName: ${{ env.MODULE_NAME }}
 
+      - name: Outputs Variables
+        shell: pwsh
+        run: |
+          Write-Host "PreReleaseLabel: ${{ needs.build.outputs.preReleaseLabel }}"
+
   publishPreview:
-    if: contains(needs.build.outputs.preReleaseTag, 'preview')
+    if: contains(needs.build.outputs.preReleaseLabel, 'preview')
     runs-on: windows-latest
     needs: [build, test]
     environment:
@@ -34,7 +39,7 @@ jobs:
           testGallery: 'True'
 
   publishProd:
-    if: needs.build.outputs.preReleaseTag == null
+    if: needs.build.outputs.preReleaseLabel == ''
     runs-on: windows-latest
     needs: [build, test]
     environment:

@@ -1,3 +1,5 @@
+Import-Module -Name ImportExcel
+
 $moduleName = 'AzReports'
 
 if (Test-Path -Path "./Modules/$( $moduleName )") {

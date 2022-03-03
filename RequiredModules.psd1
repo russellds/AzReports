@@ -1,4 +1,5 @@
 @{
+    ImportExcel = '7.4.*'
     Configuration = '1.5.*'
     Metadata = '1.5.*'
     Pester = '5.1.*'
