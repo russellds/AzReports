@@ -1,10 +1,18 @@
-/output/
-/[0-9]*/
-/temp/
+# ignore everything
+/*
 
-/.vs/
-RequiredModules/
-node_modules/
+# explicitly allow the following in the root
+!.gitignore
+!build.ps1
+!build.psd1
+!GitVersion.yml
+!LICENSE
+!PSScriptAnalyzerSettings.psd1
+!README.md
+!RequiredModules.psd1
 
-results.xml
-coverage.xml
+# explicitly allow the following folders
+!/.github/*
+!/.vscode/*
+!/Source/*
+!/tests/*
