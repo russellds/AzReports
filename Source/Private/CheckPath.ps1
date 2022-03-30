@@ -1,4 +1,5 @@
 function CheckPath {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [System.IO.FileInfo]
