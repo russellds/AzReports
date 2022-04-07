@@ -3,13 +3,13 @@
 function New-AzReportsTrafficManager {
     <#
     .SYNOPSIS
-        Creates an Excel spreadsheet report with the details for Azure Policy Assignment
+        Creates an Excel spreadsheet report with the details for Azure Traffic Manager
     .DESCRIPTION
-        Creates an Excel spreadsheet report with the details for Azure Policy Assignment
+        Creates an Excel spreadsheet report with the details for Azure Traffic Manager
     .EXAMPLE
-        PS C:\> New-AzReportsTrafficManager -Path .\temp\SecurityCenterBuiltIn.xlsx -Name SecurityCenterBuiltIn -Force
+        PS C:\> New-AzReportsTrafficManager -Path .\temp\TrafficManager.xlsx -Force
 
-        Creates a report of the Azure Policy Assignment and if the Path already exists it overwrites it.
+        Creates a report of the Azure Traffic Manager and if the Path already exists it overwrites it.
     .INPUTS
         None
     .OUTPUTS
