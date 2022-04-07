@@ -12,7 +12,7 @@
 !RequiredModules.psd1
 
 # explicitly allow the following folders
-!/.github/*
-!/.vscode/*
-!/Source/*
-!/tests/*
+!/.github/
+!/.vscode/
+!/Source/
+!/tests/
