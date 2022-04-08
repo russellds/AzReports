@@ -38,48 +38,57 @@ function New-AzReportsTrafficManager {
 
         CheckPath -Path $Path -Extension '.xlsx' -Force:$Force -ErrorAction Stop
 
-        $tmProfiles = Get-AzTrafficManagerProfile
+        $query = @'
+resources
+| where type == "microsoft.network/trafficmanagerprofiles"
+| order by subscriptionId asc , resourceGroup asc , name asc
+'@
 
-        $customTmProfileProperties = @(
-            'ResourceGroupName',
-            'Name',
-            'RelativeDnsName',
-            'Ttl',
-            'ProfileStatus',
-            'TrafficRoutingMethod',
-            'MonitorProtocol',
-            'MonitorPort',
-            'MonitorPath',
-            'MonitorIntervalInSeconds',
-            'MonitorTimeoutInSeconds',
-            'MonitorToleratedNumberOfFailures',
-            'MaxReturn'
-        )
 
-        $customTmProfileObjects = $tmProfiles |
-            Select-Object -Property $customTmProfileProperties
+        $queryResults = SearchAzGraph -Query $query
 
-        $customEndpointProperties = @(
-            'ResourceGroupName',
-            'ProfileName',
-            'Name',
-            'Type',
-            'Target',
-            'EndpointStatus',
-            'Weight',
-            'Priority',
-            'Location',
-            'EndpointMonitorStatus',
-            'MinChildEndpoints',
-            'MinChildEndpointsIPv4',
-            'MinChildEndpointsIPv6',
-            'GeoMapping',
-            'SubnetMapping',
-            'CustomHeaders'
-        )
+        $tmProfiles = [System.Collections.ArrayList]::new()
+        $tmEndpoints = [System.Collections.ArrayList]::new()
 
-        $customEndpointObjects = $tmProfiles.Endpoints |
-            Select-Object -Property $customEndpointProperties
+        foreach ($queryResult in $queryResults) {
+            $null = $tmProfiles.Add([PSCustomObject]@{
+                    'Subscription Id'                      = $queryResult.subscriptionId
+                    'Resource Group'                       = $queryResult.resourceGroup
+                    Name                                   = $queryResult.name
+                    Status                                 = $queryResult.properties.profileStatus
+                    'Routing Method'                       = $queryResult.properties.TrafficRoutingMethod
+                    'Max Return'                           = $queryResult.properties.MaxReturn
+                    'Traffic View Enrollent'               = $queryResult.properties.trafficViewEnrollmentStatus
+                    FQDN                                   = $queryResult.properties.dnsConfig.fqdn
+                    'Relative DNS Name'                    = $queryResult.properties.dnsConfig.relativeName
+                    TTL                                    = $queryResult.properties.dnsConfig.TTL
+                    'Monitor Status'                       = $queryResult.properties.monitorConfig.profileMonitorStatus
+                    'Monitor Protocol'                     = $queryResult.properties.monitorConfig.protocol
+                    'Monitor Port'                         = $queryResult.properties.monitorConfig.port
+                    'Monitor Path'                         = $queryResult.properties.monitorConfig.path
+                    'Monitor Interval in Seconds'          = $queryResult.properties.monitorConfig.intervalInSeconds
+                    'Monitor Tolerated Number of Failures' = $queryResult.properties.monitorConfig.toleratedNumberOfFailures
+                    'Monitor Timeout in Seconds'           = $queryResult.properties.monitorConfig.timeoutInSeconds
+                })
+
+            foreach ($endpoint in $queryResult.properties.endpoints) {
+                $null = $tmEndpoints.Add([PSCustomObject]@{
+                        'Subscription Id'          = $queryResult.subscriptionId
+                        'Resource Group'           = $queryResult.resourceGroup
+                        'Profile Name'             = $queryResult.name
+                        'Endpoint Name'            = $endpoint.name
+                        Status                     = $endpoint.properties.endpointStatus
+                        Target                     = $endpoint.properties.target
+                        Priority                   = $endpoint.properties.priority
+                        Weight                     = $endpoint.properties.weight
+                        Location                   = $endpoint.properties.endpointLocation
+                        'Min Child Endpoints'      = $endpoint.properties.minChildEndpoints
+                        'Min Child Endpoints IPv4' = $endpoint.properties.minChildEndpointsIPv4
+                        'Min Child Endpoints IPv6' = $endpoint.properties.minChildEndpointsIPv6
+
+                    })
+            }
+        }
 
         $excelSplat = @{
             Path          = $Path
@@ -91,8 +100,7 @@ function New-AzReportsTrafficManager {
             PassThru      = $true
         }
 
-        $excel = $customTmProfileObjects |
-            Sort-Object -Property ResourecGroupName, Name |
+        $excel = $tmProfiles |
             Export-Excel @excelSplat
 
         $workSheet = $excel.Workbook.Worksheets[$excelSplat.WorksheetName]
@@ -102,16 +110,20 @@ function New-AzReportsTrafficManager {
         Set-ExcelColumn -Worksheet $workSheet -Column 1 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 2 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 3 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 4 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 4 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 5 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 6 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 7 -AutoSize -HorizontalAlignment Center
-        Set-ExcelColumn -Worksheet $workSheet -Column 8 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 7 -AutoSize
+        Set-ExcelColumn -Worksheet $workSheet -Column 8 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 9 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 10 -AutoSize -HorizontalAlignment Center
-        Set-ExcelColumn -Worksheet $workSheet -Column 11 -AutoSize -HorizontalAlignment Center
-        Set-ExcelColumn -Worksheet $workSheet -Column 12 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 11 -AutoSize
+        Set-ExcelColumn -Worksheet $workSheet -Column 12 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 13 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 14 -AutoSize
+        Set-ExcelColumn -Worksheet $workSheet -Column 15 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 16 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 17 -AutoSize -HorizontalAlignment Center
 
         $excelSplat = @{
             ExcelPackage  = $excel
@@ -123,8 +135,8 @@ function New-AzReportsTrafficManager {
             PassThru      = $true
         }
 
-        $customEndpointObjects |
-            Sort-Object -Property ResourecGroupName, ProfileName, Name |
+        $null = $tmEndpoints |
+            Sort-Object -Property 'Subscription Id', 'Resource Group', 'Profile Name', 'Endpoint Name' |
             Export-Excel @excelSplat
 
         $workSheet = $excel.Workbook.Worksheets[$excelSplat.WorksheetName]
@@ -140,13 +152,9 @@ function New-AzReportsTrafficManager {
         Set-ExcelColumn -Worksheet $workSheet -Column 7 -AutoSize -HorizontalAlignment Center
         Set-ExcelColumn -Worksheet $workSheet -Column 8 -AutoSize -HorizontalAlignment Center
         Set-ExcelColumn -Worksheet $workSheet -Column 9 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 10 -AutoSize
+        Set-ExcelColumn -Worksheet $workSheet -Column 10 -AutoSize -HorizontalAlignment Center
         Set-ExcelColumn -Worksheet $workSheet -Column 11 -AutoSize -HorizontalAlignment Center
         Set-ExcelColumn -Worksheet $workSheet -Column 12 -AutoSize -HorizontalAlignment Center
-        Set-ExcelColumn -Worksheet $workSheet -Column 13 -AutoSize -HorizontalAlignment Center
-        Set-ExcelColumn -Worksheet $workSheet -Column 14 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 15 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 16 -AutoSize
 
         if ($NoInvoke) {
             Close-ExcelPackage -ExcelPackage $excel
