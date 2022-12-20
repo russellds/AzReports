@@ -55,34 +55,27 @@ function New-AzReportsRoleAssignment {
             Write-Information "Setting Azure Context to Subscription: $( $subscription.Name )" -InformationAction Continue
             $context = Set-AzContext -SubscriptionId $subscription.Id
 
-            foreach ($nsg in $nsgs) {
-                $nsgReport += [PSCustomObject]@{
-                    'Resource Group' = $nsg.ResourceGroupName
-                    Name             = $nsg.Name
-                    Location         = $nsg.Location
-                }
+            $assignments = Get-AzRoleAssignment
 
-                foreach ($securityRule in $nsg.SecurityRules) {
-                    $securityRulesReport += [PSCustomObject]@{
-                        'NSG Name'                   = $nsg.Name
-                        Name                         = $securityRule.Name
-                        Description                  = $securityRule.Description
-                        Priority                     = $securityRule.Priority
-                        Access                       = $securityRule.Access
-                        Direction                    = $securityRule.Direction
-                        Protocol                     = $securityRule.Protocol
-                        'Destination Port Range'     = $securityRule.DestinationPortRange -join ', '
-                        'Destination Address Prefix' = ($securityRule.DestinationAddressPrefix | Sort-Object) -join ', '
-                        'Source Port Range'          = $securityRule.SourcePortRange -join ', '
-                        'Source Address Prefix'      = ($securityRule.SourceAddressPrefix | Sort-Object) -join ', '
-                    }
+            foreach ($assignment in $assignments) {
+                $customRole = (Get-AzRoleDefinition -Name $assignment.RoleAssignmentName).IsCustom
+
+                $rolesReport += [PSCustomObject]@{
+                    'Subscription Id'      = $subscription.Id
+                    'Subscription Name'    = $subscription.Name
+                    'Display Name'         = $assignment.DisplayName
+                    'Sign-In Name'         = $assignment.SignInName
+                    'Object Type'          = $assignment.ObjectType
+                    'Role Definition Name' = $assignment.RoleDefinitionName
+                    'Custom Role'          = $customRole
+                    'Scope'                = $assignment.Scope
                 }
             }
         }
 
         $excelSplat = @{
             Path          = $Path
-            WorksheetName = 'NSGs'
+            WorksheetName = 'RoleAssignments'
             TableStyle    = 'Medium2'
             AutoSize      = $true
             FreezeTopRow  = $true
@@ -90,8 +83,8 @@ function New-AzReportsRoleAssignment {
             PassThru      = $true
         }
 
-        $excel = $nsgReport |
-            Sort-Object -Property 'Resource Group', Name |
+        $excel = $rolesReport |
+            Sort-Object -Property 'Subscription Name', 'Display Name', 'Role Definition Name' |
             Export-Excel @excelSplat
 
         $workSheet = $excel.Workbook.Worksheets[$excelSplat.WorksheetName]
@@ -101,36 +94,11 @@ function New-AzReportsRoleAssignment {
         Set-ExcelColumn -Worksheet $workSheet -Column 1 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 2 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 3 -AutoSize
-
-        $excelSplat = @{
-            ExcelPackage  = $excel
-            WorksheetName = 'Security Rules'
-            TableStyle    = 'Medium2'
-            AutoSize      = $true
-            FreezeTopRow  = $true
-            Style         = $excelStyle
-            PassThru      = $true
-        }
-
-        $null = $securityRulesReport |
-            Sort-Object -Property 'NSG Name', Priority |
-            Export-Excel @excelSplat
-
-        $workSheet = $excel.Workbook.Worksheets[$excelSplat.WorksheetName]
-
-        Set-ExcelRow -Worksheet $workSheet -Row 1 -Bold -HorizontalAlignment Center
-
-        Set-ExcelColumn -Worksheet $workSheet -Column 1 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 2 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 3 -Width 50 -WrapText
-        Set-ExcelColumn -Worksheet $workSheet -Column 4 -AutoSize -HorizontalAlignment Center
+        Set-ExcelColumn -Worksheet $workSheet -Column 4 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 5 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 6 -AutoSize
         Set-ExcelColumn -Worksheet $workSheet -Column 7 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 8 -AutoSize -HorizontalAlignment Left
-        Set-ExcelColumn -Worksheet $workSheet -Column 9 -AutoSize
-        Set-ExcelColumn -Worksheet $workSheet -Column 10 -AutoSize -HorizontalAlignment Left
-        Set-ExcelColumn -Worksheet $workSheet -Column 11 -Width 50 -WrapText
+        Set-ExcelColumn -Worksheet $workSheet -Column 8 -AutoSize
 
         if ($NoInvoke) {
             Close-ExcelPackage -ExcelPackage $excel
