@@ -1,21 +1,17 @@
 mode: Mainline
-commit-date-format: yyyyMMddTHHmmss
 branches:
-  main:
-    increment: Inherit
-  pull-request:
-    tag: rc
-    increment: Inherit
-  bugfix:
-    regex: bug(fix)?[-/]
-    tag: preview
-    increment: Patch
-    source-branches:
-    - main
-  feature:
-    regex: feature(s)?[-/]
-    tag: preview
+  feat:
+    regex: ^feat?[/-]
+    tag: beta
     increment: Minor
+    source-branches: ["main"]
+  fix:
+    regex: ^fix?[/-]
+    tag: fix
+    increment: Patch
+    source-branches: ["main"]
 ignore:
   sha: []
+commit-date-format: yyyyMMddTHHmmss
+commit-message-incrementing: MergeMessageOnly
 merge-message-formats: {}
