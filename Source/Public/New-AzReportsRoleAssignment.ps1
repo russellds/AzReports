@@ -53,12 +53,12 @@ function New-AzReportsRoleAssignment {
         foreach ($subscription in $subscriptions) {
 
             Write-Information "Setting Azure Context to Subscription: $( $subscription.Name )" -InformationAction Continue
-            $context = Set-AzContext -SubscriptionId $subscription.Id
+            $null = Set-AzContext -SubscriptionId $subscription.Id
 
             $assignments = Get-AzRoleAssignment
 
             foreach ($assignment in $assignments) {
-                $customRole = (Get-AzRoleDefinition -Name $assignment.RoleAssignmentName).IsCustom
+                $customRole = (Get-AzRoleDefinition -Name $assignment.RoleDefinitionName).IsCustom
 
                 $rolesReport += [PSCustomObject]@{
                     'Subscription Id'      = $subscription.Id
