@@ -1,13 +1,16 @@
-name: 'Build, Test, and Publish PowerShell Module'
-on: [workflow_dispatch]
+name: "Build, Test, and Publish PowerShell Module"
+on:
+  push:
+    branches:
+      - main
 env:
-  MODULE_NAME: 'AzReports'
+  MODULE_NAME: "AzReports"
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: russellds/pwsh-module-build@v0
-      id: pwshModuleBuild
+      - uses: russellds/pwsh-module-build@v0
+        id: pwshModuleBuild
 
     outputs:
       preReleaseLabel: ${{ steps.pwshModuleBuild.outputs.preReleaseLabel }}
@@ -36,7 +39,7 @@ jobs:
         with:
           moduleName: ${{ env.MODULE_NAME }}
           nuGetApiKey: ${{ secrets.PS_GALLERY_API_KEY }}
-          testGallery: 'True'
+          testGallery: "True"
 
   publishProd:
     if: needs.build.outputs.preReleaseLabel == ''
