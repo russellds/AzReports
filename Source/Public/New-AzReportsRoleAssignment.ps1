@@ -42,8 +42,10 @@ function New-AzReportsRoleAssignment {
 
         CheckPath -Path $Path -Extension '.xlsx' -Force:$Force -ErrorAction Stop
 
+        $currentSubscription = Get-AzSubscription -SubscriptionId (Get-AzContext).Subscription.Id
+
         if ($Current) {
-            $subscriptions = Get-AzSubscription -SubscriptionId (Get-AzContext).Subscription.Id
+            $subscriptions = $currentSubscription
         } else {
             $subscriptions = Get-AzSubscription
         }
@@ -104,6 +106,11 @@ function New-AzReportsRoleAssignment {
             Close-ExcelPackage -ExcelPackage $excel
         } else {
             Close-ExcelPackage -ExcelPackage $excel -Show
+        }
+
+        if ((Get-AzContext).Subscription.Id -ne $currentSubscription.Id) {
+            Write-Information "Setting Azure Context to Subscription: $( $currentSubscription.Name )"
+            $null = Set-AzContext -SubscriptionId $currentSubscription.Id
         }
     } catch {
         throw $PSItem
