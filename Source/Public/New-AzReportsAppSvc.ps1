@@ -72,6 +72,7 @@ function New-AzReportsAppSvc {
                     $localWebAppReport = $using:webAppReport
                     $localWebAppHostSslStatesReport = $using:webAppHostSslStatesReport
                     $localWebAppSiteConfigReport = $using:webAppSiteConfigReport
+                    $localWebAppSiteConfigAppSettingsReport = $using:webAppSiteConfigAppSettingsReport
 
                     $object = [PSCustomObject]@{
                         'Subscription Id'              = $localSubscription.Id
@@ -276,7 +277,7 @@ function New-AzReportsAppSvc {
                                 Value                 = $appSetting.Value
                             }
 
-                            $localWebAppSiteConfigReport.Add($object)
+                            $localWebAppSiteConfigAppSettingsReport.Add($object)
                         }
                     }
                 }
