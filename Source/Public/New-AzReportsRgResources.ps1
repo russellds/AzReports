@@ -43,68 +43,41 @@ function New-AzReportsRgResources {
 
         CheckPath -Path $Path -Extension '.xlsx' -Force:$Force -ErrorAction Stop
 
+        $subscription = Get-AzSubscription -SubscriptionId (Get-AzContext).Subscription.Id
+
+        $null = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction Stop
+
         $resources = Get-AzResource -ResourceGroupName $ResourceGroupName
+
+        Write-Information "Resources Count: $( $resources.Count )"
 
         $report = @()
 
-        foreach ($subscription in $subscriptions) {
+        for ($i = 0; $i -lt $resources.Count; $i++) {
+            Write-Information "Getting Report Info for Resource: $( $i + 1 ) of $( $resources.Count )"
 
-            Write-Information "Setting Azure Context to Subscription: $( $subscription.Name )"
-            $null = Set-AzContext -SubscriptionId $subscription.Id
-
-            $storageAccounts = Get-AzStorageAccount
-
-            Write-Information "Storage Account Count: $( $storageAccounts.Count )"
-
-            foreach ($storageAccount in $storageAccounts) {
-                $report += [PSCustomObject]@{
-                    'Subscription Id'                 = $subscription.Id
-                    'Subscription Name'               = $subscription.Name
-                    'Resource Group Name'             = $storageAccount.ResourceGroupName
-                    Name                              = $storageAccount.StorageAccountName
-                    Location                          = $storageAccount.Location
-                    Kind                              = $storageAccount.Kind
-                    Sku                               = $storageAccount.Sku.Name
-                    AccessTier                        = $storageAccount.AccessTier
-                    AllowBlobPublicAccess             = $storageAccount.AllowBlobPublicAccess
-                    AllowCrossTenantReplication       = $storageAccount.AllowCrossTenantReplication
-                    AllowSharedKeyAccess              = $storageAccount.AllowSharedKeyAccess
-                    AzureFilesIdentityBasedAuth       = $storageAccount.AzureFilesIdentityBasedAuth
-                    BlobRestoreStatus                 = $storageAccount.BlobRestoreStatus
-                    CreationTime                      = $storageAccount.CreationTime
-                    CustomDomain                      = $storageAccount.CustomDomain
-                    EnableHierarchicalNamespace       = $storageAccount.EnableHierarchicalNamespace
-                    EnableHttpsTrafficOnly            = $storageAccount.EnableHttpsTrafficOnly
-                    EnableLocalUser                   = $storageAccount.EnableLocalUser
-                    EnableNfsV3                       = $storageAccount.EnableNfsV3
-                    EnableSftp                        = $storageAccount.EnableSftp
-                    FailoverInProgress                = $storageAccount.FailoverInProgress
-                    GeoReplicationStats               = $storageAccount.GeoReplicationStats
-                    Identity                          = $storageAccount.Identity
-                    ImmutableStorageWithVersioning    = $storageAccount.ImmutableStorageWithVersioning
-                    Key1CreationTime                  = $storageAccount.KeyCreationTime.Key1
-                    Key2CreationTime                  = $storageAccount.KeyCreationTime.Key2
-                    KeyPolicy                         = $storageAccount.KeyPolicy
-                    LargeFileSharesState              = $storageAccount.LargeFileSharesState
-                    LastGeoFailoverTime               = $storageAccount.LastGeoFailoverTime
-                    MinimumTlsVersion                 = $storageAccount.MinimumTlsVersion
-                    PrimaryLocation                   = $storageAccount.PrimaryLocation
-                    ProvisioningState                 = $storageAccount.ProvisioningState
-                    PublicNetworkAccess               = $storageAccount.PublicNetworkAccess
-                    RoutingPreference                 = $storageAccount.RoutingPreference
-                    SasPolicy                         = $storageAccount.SasPolicy
-                    SecondaryLocation                 = $storageAccount.SecondaryLocation
-                    StatusOfPrimary                   = $storageAccount.StatusOfPrimary
-                    StatusOfSecondary                 = $storageAccount.StatusOfSecondary
-                    StorageAccountSkuConversionStatus = $storageAccount.StorageAccountSkuConversionStatus
-                    ResourceId                        = $storageAccount.Id
-                }
+            $report += [PSCustomObject]@{
+                'Subscription Id'     = $subscription.Id
+                'Subscription Name'   = $subscription.Name
+                'Resource Group Name' = $resources[$i].ResourceGroupName
+                Name                  = $resources[$i].Name
+                Location              = $resources[$i].Location
+                Type                  = $resources[$i].Type
+                Id                    = $resources[$i].Id
+                ChangedTime           = $resources[$i].ChangedTime
+                CreatedTime           = $resources[$i].CreatedTime
+                ExtensionResourceName = $resources[$i].ExtensionResourceName
+                ExtensionResourceType = $resources[$i].ExtensionResourceType
+                Kind                  = $resources[$i].Kind
+                ManagedBy             = $resources[$i].ManagedBy
+                ParentResource        = $resources[$i].ParentResource
+                Plan                  = $resources[$i].Plan
             }
         }
 
         $excelSplat = @{
             Path          = $Path
-            WorksheetName = 'StorageAccount'
+            WorksheetName = $ResourceGroupName
             TableStyle    = 'Medium2'
             AutoSize      = $true
             FreezeTopRow  = $true
@@ -124,11 +97,6 @@ function New-AzReportsRgResources {
             Close-ExcelPackage -ExcelPackage $excel
         } else {
             Close-ExcelPackage -ExcelPackage $excel -Show
-        }
-
-        if ((Get-AzContext).Subscription.Id -ne $currentSubscription.Id) {
-            Write-Information "Setting Azure Context to Subscription: $( $currentSubscription.Name )"
-            $null = Set-AzContext -SubscriptionId $currentSubscription.Id
         }
     } catch {
         throw $PSItem
