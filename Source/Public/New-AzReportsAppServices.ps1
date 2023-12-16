@@ -133,7 +133,7 @@ function New-AzReportsAppServices {
         }
 
         $excel = $report |
-            Sort-Object -Property 'Subscription Name', 'App Service Plan Resource Group Name', 'App Service Plan Name', 'Resource Group Name', Name |
+            Sort-Object -Property 'Subscription Name', 'Plan Resource Group Name', 'Plan Name', 'Resource Group Name', Name |
             Export-Excel @excelSplat
 
         $workSheet = $excel.Workbook.Worksheets[$excelSplat.WorksheetName]
